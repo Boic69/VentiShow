@@ -1,0 +1,25 @@
+img {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1s; 
+}
+
+video {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1s; 
+}
+
+.fade {
+    opacity: 1 !important;
+}
