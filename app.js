@@ -1,12 +1,11 @@
-var express             = require('express');
+var   express           = require('express');
 const fs                = require('fs');
 const serverDir         = "\\\\clustkb5\\Test";
-const configName        = "config.json"
-const defaultConfig     = {slideDelay: 20, loop: true}
+const configName        = "config.json";
+const defaultConfig     = {slideDelay: 20, loop: true};
 const imgFileTypes      = ["tif", "tiff", "bmp", "jpg", "jpeg", "gif", "png", "eps", "raw", "webp"];
 const vidFileTypes      = ["mp4", "mov", "wmv", "flv", "avi"];
-
-var app = express();
+var app                 = express();
 
 
 const getFiles = source => 
@@ -20,7 +19,7 @@ const getDirectories = source =>
     .map(dirent => dirent.name);
 
 function getSettings(location) {
-    if (!fs.existsSync()) {
+    if (!fs.existsSync(`${location}\\${configName}`)) {
         fs.writeFileSync(`${location}\\${configName}`, JSON.stringify(defaultConfig));
         return defaultConfig;
     }
@@ -33,7 +32,7 @@ function containsImgOrVid(files) {
     var test = "";
     files.forEach((file) => {
         var ext = file.split('.').pop().replaceAll(/\s/g,'');
-        if (imgFileTypes.includes(ext) || vidFileTypes.includes(ext)){
+        if (imgFileTypes.includes(ext) || vidFileTypes.includes(ext)) {
             test += ".";
         }
     });
@@ -74,6 +73,17 @@ app.use('/assets', express.static(serverDir));
 
 app.get("/", (req, res) => {
     res.send(boiler_plate[1] + '<div class="grid-container">' + handleLocations(locations)) + '</div>';
+});
+
+app.get("/:location/check", (req, res) => {
+    var location = req.params.location;
+    if (!locations.includes(location)) {
+        res.send(`${location} is not a location. All locations can be found <a href="../">here</a>`);
+        return;
+    }
+    var files = getFiles(`${serverDir}\\${location}`);
+    files = files.filter(file => imgFileTypes.includes(file.split('.').pop().replaceAll(/\s/g,'')) || vidFileTypes.includes(file.split('.').pop().replaceAll(/\s/g,'')))
+    res.send(JSON.stringify({status: "OK", fileList: files}));
 });
 
 app.get("/:location", (req, res) => {

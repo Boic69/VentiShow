@@ -1,4 +1,6 @@
 var elems = [];
+var fileList = [];
+var currentLoc = location.pathname.split("/")[1];
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -25,6 +27,40 @@ function loadVid(vidName) {
     req.send();
 }
 
+function areEqual(array1, array2) {
+    if (array1.length === array2.length) {
+
+        return array1.every((element, index) => {
+            if (element === array2[index]) {
+                return true;
+        }
+  
+        return false;
+      });
+    }
+  
+    return false;
+}
+
+function checkUpdate() {
+    var req = new XMLHttpRequest();
+    req.open('GET', `${currentLoc}/check`, true);
+    req.responseType = 'json';
+    
+    req.onload = function() {
+    if (this.status === 200) {
+        var res = this.response;
+        var compFileList = []
+        res.fileList.forEach((file) => {
+            compFileList.push(file.replaceAll("\\", "/").replaceAll("assets/", ""));
+        });
+        if (!areEqual(compFileList, fileList)) window.location.href = window.location.href;
+    }
+    }
+    
+    req.send();
+}
+
 function preloadVideos(vidList) {
     for (var i = 0; i < vidList.length; i++) {
         if (vidList[i].tagName === 'VIDEO') {
@@ -34,11 +70,17 @@ function preloadVideos(vidList) {
     }
 }
 
+var updateCheck = setInterval(function() {
+    checkUpdate();
+}, 5000);
 
 window.addEventListener('load', async function () {
     elems = elems.concat(Array.prototype.slice.call(this.document.querySelectorAll("img")));
     elems = elems.concat(Array.prototype.slice.call(this.document.querySelectorAll("video")));
     elems.sort((a, b) => a.id - b.id);
+    elems.forEach((file) => {
+        fileList.push(decodeURIComponent(file.currentSrc.split("assets/")[1]))
+    });
     const params = new URLSearchParams(window.location.search);
     if (params.has("loop")) {
         loop = Boolean(parseInt(params.get("loop")));

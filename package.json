@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "forever --watch --watchDirectory \\\\clustkb5\\Test \\app.js",
+    "start": "forever --watch --watchDirectory \\\\clustkb5\\Test\\ .\\app.js",
     "cleanup": "taskkill /F /IM node.exe"
   },
   "author": "",
